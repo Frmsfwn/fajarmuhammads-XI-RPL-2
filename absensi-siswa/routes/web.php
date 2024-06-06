@@ -32,13 +32,14 @@ Route::middleware(['preventBackHistory','auth','userAccess:admin'])->group(funct
     Route::get('/datasiswa', [AdminController::class, 'data'])->name('admin.datasiswa');
     Route::put('/admin_profile', [AdminController::class, 'updateprofile']);
     
+    Route::get('/hapussiswa/{user:id}',[AdminController::class, 'deletesiswa'])->name('admin.delete');
     Route::get('/activate/{user:id}',[AdminController::class, 'activate']);
     Route::get('/deactivate/{user:id}',[AdminController::class, 'deactivate']);
 });
 
 //siswa
 Route::middleware(['preventBackHistory','auth','userAccess:siswa'])->group(function () {
-    Route::get('/absen', [SiswaController::class, 'siswa'])->name('siswa.absen');
+    Route::get('/absen', [SiswaController::class, 'siswa'])->name('siswa.absen')->middleware('preventBackAbsen');
     Route::get('/siswa_profile', [SiswaController::class, 'profile']);
     Route::get('/infoAbsen', [SiswaController::class, 'info'])->name('siswa.infoAbsen');
     Route::put('/siswa_profile', [SiswaController::class, 'updateprofile']);

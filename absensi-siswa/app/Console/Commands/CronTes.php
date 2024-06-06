@@ -8,7 +8,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class TandaAlpha extends Command
+class CronTes extends Command
 {
     
     protected $signature = 'mark:alpha';
@@ -23,14 +23,14 @@ class TandaAlpha extends Command
         foreach ($users as $user) {
             $absensi = data_absen::where('username', $user->username)
                                 ->where('tanggal', $current_date)
-                                ->orderByRaw("FIELD(status_kehadiran, 'Hadir', 'Sakit', 'Izin')")
+                                ->where('status_kehadiran', 'Hadir')
                                 ->first();
             if (!$absensi) {
                 data_absen::create([
                     'username' => $user->username,
                     'hari' => Carbon::now()->isoFormat('dddd'),
                     'tanggal' => $current_date,
-                    'status_kehadiran' => 'Alpha',
+                    'status_kehadiran' => 'alpha',
                 ]);
             }
             

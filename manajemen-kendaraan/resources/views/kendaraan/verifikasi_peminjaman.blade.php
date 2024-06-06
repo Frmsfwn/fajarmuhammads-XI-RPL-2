@@ -87,7 +87,6 @@
                                 <table class="table-hover align-middle table">
                                     <thead>
                                         <tr>
-                                            <th scope="col">#</th>
                                             <th scope="col">NIP Peminjam</th>
                                             <th scope="col">Jumlah Kendaraan</th>
                                             <th scope="col">Tanggal Awal</th>
@@ -97,7 +96,6 @@
                                     </thead>
                                     <tbody>
                                         <tr class="align-middle">
-                                            <th>{{ $datapeminjam->id }}</th>
                                             <td>{{ $datapeminjam->nip_peminjam }}</td>
                                             <td>{{ $datapeminjam->jumlah }}</td>
                                             <td>{{ $datapeminjam->tanggal_awal }}</td>
@@ -137,7 +135,7 @@
                                     <tbody>
                                         @forelse($datakendaraan as $kendaraan)
                                         <tr class="align-middle">
-                                            <td><input type="checkbox" id="nopol" name="nopol[]" value="{{ $kendaraan->nopol }}"></td>
+                                            <td><input type="checkbox" class="nopol" id="nopol" name="nopol[]" value="{{ $kendaraan->nopol }}"></td>
                                             <td>{{ $kendaraan->jenis_kendaraan }}</td>
                                             <td>{{ $kendaraan->tahun }}</td>
                                             <td>{{ $kendaraan->nopol }}</td>
@@ -153,40 +151,44 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="bg-light text-center rounded p-4">
-                            <div class="text-start mb-4">
-                                <h6 class="mb-0">Daftar Supir</h6>
-                            </div>
-                            <div class="table-responsive">
-                                {{-- Table --}}
-                                <table class="table-hover align-middle table">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">#</th>
-                                            <th scope="col">NIP</th>
-                                            <th scope="col">Nama</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Kelompok</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($datasupir as $supir)
-                                        <tr class="align-middle">
-                                            <td><input type="checkbox" id="id_supir" name="id_supir[]" value="{{ $supir->id }}"></td>
-                                            <td>{{ $supir->nip }}</td>
-                                            <td>{{ $supir->nama }}</td>
-                                            <td>{{ $supir->status }}</td>
-                                            <td>{{ $supir->kelompok }}</td>
-                                        </tr>
-                                        @empty
-                                            <h2 class="mb-5">Data Kosong</h2>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                    @if ($datapeminjam->supir == true)
+                        <div class="col-md-12">
+                            <div class="bg-light text-center rounded p-4">
+                                <div class="text-start mb-4">
+                                    <h6 class="mb-0">Daftar Supir</h6>
+                                </div>
+                                <div class="table-responsive">
+                                    {{-- Table --}}
+                                    <table class="table-hover align-middle table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">NIP</th>
+                                                <th scope="col">Nama</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">Kelompok</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($datasupir as $supir)
+                                            <tr class="align-middle">
+                                                <td><input type="checkbox" id="id_supir" name="id_supir[]" value="{{ $supir->id }}"></td>
+                                                <td>{{ $supir->nip }}</td>
+                                                <td>{{ $supir->nama }}</td>
+                                                <td>{{ $supir->status }}</td>
+                                                <td>{{ $supir->kelompok }}</td>
+                                            </tr>
+                                            @empty
+                                                <h2 class="mb-5">Data Kosong</h2>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @else
+
+                    @endif
                     <div class="col-md-12 w-100 text-start mb-3">
                         <button type="submit" class="btn btn-primary">Verifikasi</button>
                     </div>

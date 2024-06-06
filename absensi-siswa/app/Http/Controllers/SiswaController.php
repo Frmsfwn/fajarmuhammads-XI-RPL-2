@@ -13,7 +13,7 @@ use Carbon\Carbon;
 class SiswaController extends Controller
 {
     function siswa()
-    {  
+    {
         return view('siswa.absen');
     }
 
@@ -22,8 +22,10 @@ class SiswaController extends Controller
         return view('siswa.profile');
     }
 
-    function info()
+    function info(Request $request)
     {
+        $request->session()->put('forwarded', true);
+        
         $infoabsen = data_absen::where('username', Auth::user()->username)->get();
         return view('siswa.infoAbsen')->with('infoabsen', $infoabsen);
     }
@@ -62,7 +64,7 @@ class SiswaController extends Controller
     function absenPulang(Request $request)
     {
         $current_time = Carbon::now()->setTimezone('Asia/Jakarta');
-        $start_afternoon = Carbon::createFromTimeString('12:00', 'Asia/Jakarta');
+        $start_afternoon = Carbon::createFromTimeString('12:30', 'Asia/Jakarta');
         $end_afternoon = Carbon::createFromTimeString('17:00', 'Asia/Jakarta');
 
         if ($current_time->between($start_afternoon, $end_afternoon)) {
@@ -76,6 +78,7 @@ class SiswaController extends Controller
             if ($absensi) {
                 $absensi->update([
                     'waktu_pulang' => $current_time->toTimeString(),
+                    'status_kehadiran' => 'Hadir',
                 ]);
 
                 return redirect('/infoAbsen')->with('notification', 'Absen pulang berhasil!');

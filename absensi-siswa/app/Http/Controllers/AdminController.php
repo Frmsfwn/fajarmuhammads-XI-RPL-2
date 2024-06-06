@@ -16,7 +16,7 @@ class AdminController extends Controller
     function admin(Request $request)
     {   
         //data absen 
-        $absen = data_absen::orderBy('updated_at','DESC')->paginate(10);
+        $absen = data_absen::orderBy('updated_at','DESC')->paginate(4);
         
         //format tanggal
         $absen->getCollection()->transform(function ($dabsen) {
@@ -25,23 +25,34 @@ class AdminController extends Controller
         });
         
         // List user
-        $siswas = ['fajar', 'rifqi', 'virgi', 'zulfan'];
+        $siswas = User::select('username')->whereNot('username', '=', 'admin')->pluck('username');
+        
+        // Logika bulan
+        $dataBulan = data_absen::selectRaw('MONTH(updated_at) as month')
+            ->groupBy('month')
+            ->pluck('month');
 
-        // Chart
-        $absensi = DB::table('data_absen')
-            ->selectRaw('MONTH(created_at) as month, FLOOR((DAYOFMONTH(created_at) - 1) / 7) + 1 as week, COUNT(*) as count')
-            ->whereMonth('created_at', 5)
-            ->where('username', 'virgi')
-            ->groupBy('month', 'week')
-            ->get()
-            ->pluck('count', 'week')
-            ->all();
+        if ($dataBulan->isEmpty()) {
+            $dataBulan = collect([]);
+        } else {
+            $dataBulan = $dataBulan->map(function ($nomorBulan) {
+                return Carbon::create()->month($nomorBulan)->format('F');
+            });
+        }
+
+        if ($request->bulan) {
+            $bulan = Carbon::parse($request->bulan)->month;
+            $bulanSekarang = Carbon::parse($request->bulan)->format('F');
+        } else {
+            $bulan = Carbon::now()->month;
+            $bulanSekarang = Carbon::now()->format('F');
+        }
 
         // Chart
         foreach ($siswas as $siswa) {
             $absensi = DB::table('data_absen')
                 ->selectRaw('MONTH(created_at) as month, FLOOR((DAYOFMONTH(created_at) - 1) / 7) + 1 as week, COUNT(*) as count')
-                ->whereMonth('created_at', 5)
+                ->whereMonth('created_at', $bulan)
                 ->where('username', $siswa)
                 ->groupBy('month', 'week')
                 ->get()
@@ -67,8 +78,6 @@ class AdminController extends Controller
                 "fill" => false,
             ];
         };
-
-        // dd($data);
         
         $chartAbsen = app()->chartjs
             ->name('barChart')
@@ -86,14 +95,15 @@ class AdminController extends Controller
             }");
 
         return view('admin.dashboard')
+            ->with('bulanSekarang', $bulanSekarang)
+            ->with('dataBulan', $dataBulan)
             ->with('chartAbsen', $chartAbsen)
             ->with('absen', $absen);
     }
 
     function data()
     {
-        // Mengambil semua data user yang role-nya 'siswa'
-        $datasiswa = user::where('role', 'siswa')->orderBy('updated_at','DESC')->paginate(8);
+        $datasiswa = user::where('Role', 'siswa')->orderBy('updated_at','DESC')->paginate(8);
         return view('admin.datasiswa')->with('datasiswa',$datasiswa);
     }
 
@@ -153,19 +163,28 @@ class AdminController extends Controller
         }
 
         return redirect('/dashboard')
-                ->with('notification', 'Data Berhasil Diubah.');
+                ->with('notification', 'Profil Berhasil Diubah.');
+    }
+
+    function deletesiswa($id) 
+    {   
+        $dsiswa = user::findOrFail($id);
+        $dsiswa->delete();
+        
+        return redirect('/datasiswa')
+                ->with('notification', 'Data Siswa Berhasil Dihapus.');
     }
 
     public function activate(string $id)
     {
         user::where('id',$id)->update(['status' => 'aktif']);
-        return redirect()->back()->with('success', 'Status pengguna berhasil diubah menjadi aktif.');
+        return redirect()->back()->with('notification', 'Status pengguna berhasil diubah menjadi aktif.');
     }
 
     public function deactivate(string $id)
     {
         user::where('id',$id)->update(['status' => 'nonaktif']);
-        return redirect()->back()->with('success', 'Status pengguna berhasil diubah menjadi nonaktif.');
+        return redirect()->back()->with('notification', 'Status pengguna berhasil diubah menjadi nonaktif.');
     }
 
     private function generateRandomHexColor()
