@@ -83,37 +83,62 @@
                                 @csrf
                                 @method('PUT')
                                 <div class="col-md-6">
-                                    <label for="jenis_kendaraan" class="form-label w-100 text-start">Jenis Kendaraan</label>
+                                    <label for="jenis_kendaraan" class="form-label w-100 text-start">Jenis Kendaraan<span class="text-danger">*</span></label>
                                     <input type="text" value="{{ $datakendaraan->jenis_kendaraan }}" name="jenis_kendaraan" class="form-control" id="jenis_kendaraan" min="1" autocomplete="off">
+                                    @error('jenis_kendaraan')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="tahun" class="form-label w-100 text-start">Tahun Kendaraan</label>
+                                    <label for="tahun" class="form-label w-100 text-start">Tahun Kendaraan<span class="text-danger">*</span></label>
                                     <input type="number" value="{{ $datakendaraan->tahun }}" name="tahun" class="form-control" id="tahun">
+                                    @error('tahun')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
                                 </div>
                                 <div class="col-12">
-                                    <label for="nopol" class="form-label w-100 text-start">No Polisi</label>
+                                    <label for="nopol" class="form-label w-100 text-start">No Polisi<span class="text-danger">*</span></label>
                                     <input type="text" value="{{ $datakendaraan->nopol }}" name="nopol" class="form-control" id="nopol" autocomplete="off">
+                                    @error('nopol')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
                                 </div>
                                 <div class="col-12">
-                                    <label for="warna" class="form-label w-100 text-start">Warna Kendaraan</label>
+                                    <label for="warna" class="form-label w-100 text-start">Warna Kendaraan<span class="text-danger">*</span></label>
                                     <input type="text" value="{{ $datakendaraan->warna }}" name="warna" class="form-control" id="warna" autocomplete="off">
+                                    @error('warna')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="kondisi" class="form-label w-100 text-start">Kondisi Kendaraan</label>
+                                <div class="col-md-4">
+                                    <label for="kondisi" class="form-label w-100 text-start">Kondisi Kendaraan<span class="text-danger">*</span></label>
                                     <select id="kondisi" name="kondisi" class="form-select">
                                         <option value="{{ $datakendaraan->kondisi }}" selected hidden>{{ $datakendaraan->kondisi }}</option>
                                         <option value="baik">Baik</option>
                                         <option value="rusak">Rusak</option>
                                         <option value="perbaikan">Perbaikan</option>
                                     </select>
+                                    @error('kondisi')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="status" class="form-label w-100 text-start">Status Kendaraan</label>
+                                <div class="col-md-4">
+                                    <label for="status" class="form-label w-100 text-start">Status Kendaraan<span class="text-danger">*</span></label>
                                     <select id="status" name="status" class="form-select">
                                         <option value="{{ $datakendaraan->status }}" selected hidden>{{ $datakendaraan->status }}</option>
                                         <option value="tersedia">Tersedia</option>
                                         <option value="digunakan">Digunakan</option>
                                     </select>
+                                    @error('status')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="Kendaraan" class="form-label w-100 text-start">Foto Kendaraan<span class="text-danger">*</span></label>
+                                    <input class="form-control" type="file" name="foto_kendaraan" id="Kendaraan">
+                                    @error('foto_kendaraan')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
                                 </div>
                                 <div class="col-md-12 w-100 text-start">
                                     <button type="submit" class="btn btn-primary">Submit</button>
@@ -126,13 +151,11 @@
             {{-- Alert --}}
             @if($errors->any())
                 <div class="position-fixed bottom-0 end-0 p-3">
-                    @foreach ($errors->all() as $item)
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                            {{ $item }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endforeach
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                        Proses edit tidak berhasil!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 </div>
             @endif
         </main>

@@ -16,15 +16,15 @@ class DatabaseSeeder extends Seeder
                 'Role' => 'siswa',
                 'telefone' => '',
                 'jenis_kelamin' => '',
-                'status' => 'aktif',
-                'password' => bcrypt('rfq1611')
+                'status' => 'Aktif',
+                'password' => bcrypt('rafiq')
             ],[
                 'id' => '2',
                 'username' => 'virgi',
                 'Role' => 'siswa',
                 'telefone' => '',
                 'jenis_kelamin' => '',
-                'status' => 'aktif',
+                'status' => 'Aktif',
                 'password' => bcrypt('virz')
             ],[
                 'id' => '3',
@@ -32,7 +32,7 @@ class DatabaseSeeder extends Seeder
                 'Role' => 'siswa',
                 'telefone' => '',
                 'jenis_kelamin' => '',
-                'status' => 'aktif',
+                'status' => 'Aktif',
                 'password' => bcrypt('fazar')
             ],[
                 'id' => '4',
@@ -40,7 +40,7 @@ class DatabaseSeeder extends Seeder
                 'Role' => 'siswa',
                 'telefone' => '',
                 'jenis_kelamin' => '',
-                'status' => 'aktif',
+                'status' => 'Aktif',
                 'password' => bcrypt('panjul')
             ]
         ];
@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
                 'Role' => 'admin',
                 'telefone' => '',
                 'jenis_kelamin' => '',
-                'status' => 'aktif',
+                'status' => 'Aktif',
                 'password' => bcrypt('admin')
             ]
         ];

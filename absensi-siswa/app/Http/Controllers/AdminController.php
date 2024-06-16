@@ -16,7 +16,20 @@ class AdminController extends Controller
     function admin(Request $request)
     {   
         //data absen 
-        $absen = data_absen::orderBy('updated_at','DESC')->paginate(4);
+        $absen = data_absen::orderBy('updated_at','DESC')->orderBy('id', 'DESC')->paginate(4);
+        $keyword = $request->input('keyword');
+        if ($keyword) {
+            $absen = DB::table('data_absen')
+                ->orderBy('updated_at', 'DESC')
+                ->orderBy('id', 'DESC')
+                ->whereAny([
+                    'hari',
+                    'tanggal',
+                    'username',
+                    'status_kehadiran',
+                ], 'LIKE', "%$keyword%")
+                ->paginate(4);
+        }
         
         //format tanggal
         $absen->getCollection()->transform(function ($dabsen) {
@@ -28,10 +41,11 @@ class AdminController extends Controller
         $siswas = User::select('username')->whereNot('username', '=', 'admin')->pluck('username');
         
         // Logika bulan
-        $dataBulan = data_absen::selectRaw('MONTH(updated_at) as month')
+        Carbon::setLocale('id');
+        $dataBulan = data_absen::selectRaw('MONTH(tanggal) as month')
             ->groupBy('month')
             ->pluck('month');
-
+        
         if ($dataBulan->isEmpty()) {
             $dataBulan = collect([]);
         } else {
@@ -48,12 +62,30 @@ class AdminController extends Controller
             $bulanSekarang = Carbon::now()->format('F');
         }
 
+        // Logika tahun
+        Carbon::setLocale('id');
+        $dataTahun = data_absen::selectRaw('YEAR(tanggal) as year')
+            ->groupBy('year')
+            ->pluck('year');
+        
+        if ($dataTahun->isEmpty()) {
+            $dataTahun = collect([]);
+        }
+
+        if ($request->tahun) {
+            $tahun = $request->tahun;
+        } else {
+            $tahun = Carbon::now()->year;
+        }
+
         // Chart
         foreach ($siswas as $siswa) {
             $absensi = DB::table('data_absen')
-                ->selectRaw('MONTH(created_at) as month, FLOOR((DAYOFMONTH(created_at) - 1) / 7) + 1 as week, COUNT(*) as count')
-                ->whereMonth('created_at', $bulan)
+                ->selectRaw('MONTH(created_at) as month, FLOOR((DAYOFMONTH(tanggal) - 1) / 7) + 1 as week, COUNT(*) as count')
+                ->whereMonth('tanggal', $bulan)
+                ->whereYear('tanggal', $tahun)
                 ->where('username', $siswa)
+                ->whereNot('status_kehadiran', '=', 'Alpha')
                 ->groupBy('month', 'week')
                 ->get()
                 ->pluck('count', 'week')
@@ -97,14 +129,37 @@ class AdminController extends Controller
         return view('admin.dashboard')
             ->with('bulanSekarang', $bulanSekarang)
             ->with('dataBulan', $dataBulan)
+            ->with('tahun', $tahun)
+            ->with('dataTahun', $dataTahun)
             ->with('chartAbsen', $chartAbsen)
-            ->with('absen', $absen);
+            ->with('absen', $absen)
+            ->with('keyword', $keyword);
     }
 
-    function data()
+
+    function data(Request $request)
     {
-        $datasiswa = user::where('Role', 'siswa')->orderBy('updated_at','DESC')->paginate(8);
-        return view('admin.datasiswa')->with('datasiswa',$datasiswa);
+        $datasiswa = user::where('Role', 'siswa')->orderBy('updated_at','DESC')
+                                                ->orderBy('id', 'DESC')->paginate(8);
+
+        $keyword = $request->input('keyword');
+        if ($keyword) {
+            $datasiswa = DB::table('Users')
+                ->where('Role', 'siswa')
+                ->orderBy('updated_at', 'DESC')
+                ->orderBy('id', 'DESC')
+                ->whereAny([
+                    'username',
+                    'telefone',
+                    'jenis_kelamin',
+                    'status',
+                ], 'LIKE', "$keyword%")
+                ->paginate(8);
+        }
+
+        return view('admin.datasiswa')
+                    ->with('datasiswa',$datasiswa)
+                    ->with('keyword', $keyword);
     }
 
     function profile()
@@ -177,14 +232,14 @@ class AdminController extends Controller
 
     public function activate(string $id)
     {
-        user::where('id',$id)->update(['status' => 'aktif']);
-        return redirect()->back()->with('notification', 'Status pengguna berhasil diubah menjadi aktif.');
+        user::where('id',$id)->update(['status' => 'Aktif']);
+        return redirect()->back()->with('notification', 'Status Siswa Berhasil Diubah Menjadi Aktif.');
     }
 
     public function deactivate(string $id)
     {
-        user::where('id',$id)->update(['status' => 'nonaktif']);
-        return redirect()->back()->with('notification', 'Status pengguna berhasil diubah menjadi nonaktif.');
+        user::where('id',$id)->update(['status' => 'Nonaktif']);
+        return redirect()->back()->with('notification', 'Status Siswa Berhasil Diubah Menjadi Nonaktif.');
     }
 
     private function generateRandomHexColor()
