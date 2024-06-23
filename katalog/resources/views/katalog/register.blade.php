@@ -47,11 +47,10 @@
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
                             <input type="text" value="{{ @old('username') }}" name="username" id="username" class="form-control"  placeholder="Enter Username..">
-                        </div>                           
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" value="{{ @old('password') }}" name="password" class="form-control" id="password"  placeholder="Enter your Password" aria-describedby="passwordHelp">
-                        <div id="passwordHelp" class="form-text">
-                            Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+                        </div>
+                        <div class="mb-3">                           
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" value="{{ @old('password') }}" name="password" class="form-control" id="password"  placeholder="Enter your Password" aria-describedby="passwordHelp">
                         </div>
                         <div class="col-12">
                             <input class="btn btn-primary" type="submit" value="Register">

@@ -110,7 +110,7 @@ class userController extends Controller
     function logout()
     {
         Auth::logout();
-        return redirect('/login');
+        return redirect('/');
     }
     function deleteuser(user $user)
     {

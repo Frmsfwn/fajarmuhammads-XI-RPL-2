@@ -32,16 +32,16 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="text" value="{{ @old('email') }}" name="email" id="email" class="form-control"  placeholder="Masukkan Email">
-                        </div>                           
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" value="{{ @old('password') }}" name="password" id="password" class="form-control" placeholder="Masukkan Password" aria-describedby="passwordHelp">
-                        <div id="passwordHelp" class="form-text">
-                            Your password must be 8-20 characters long, contain letters and numbers, and must not contain spaces, special characters, or emoji.
+                            <input type="text" value="{{ @old('email') }}" name="email" id="email" class="form-control"  placeholder="Enter your Email">
+                        </div> 
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" value="{{ @old('password') }}" name="password" id="password" class="form-control" placeholder="Enter your Password" aria-describedby="passwordHelp">
+                            <a href="/register">Register</a>
                         </div>
                         <div class="col-12">
                             <input class="btn btn-primary" type="submit" value="Login">
-                            <input class="btn btn-primary" type="button" value="Kembali" onclick="self.history.back()">
+                            <input class="btn btn-primary" type="button" value="Cancel" onclick="self.history.back()">
                         </div>
                     </div>
                 </div>
