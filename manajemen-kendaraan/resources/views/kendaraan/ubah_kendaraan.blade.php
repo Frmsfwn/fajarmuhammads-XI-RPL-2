@@ -65,7 +65,7 @@
                             @endif
                         </a>
                         <div class="dropdown-menu dropdown-menu-end bg-light border-1 rounded-0 rounded-bottom m-0">
-                            <a href="/logout" class="dropdown-item">Log Out</a>
+                            <a href="/logout" class="dropdown-item"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
                         </div>
                     </div>
                 </div>
@@ -79,40 +79,65 @@
                                 <a href="/data_kendaraan" class="mb-0 text-decoration-none text-black"><i class="fa-solid fa-arrow-left me-2"></i>Kembali</a>
                             </div>
                             {{-- Form --}}
-                            <form action="" method="POST" enctype="multipart/form-data" class="row g-3">
+                            <form action="{{ route('kendaraan.update', ['kendaraan' => $datakendaraan]) }}" method="POST" enctype="multipart/form-data" class="row g-3">
                                 @csrf
                                 @method('PUT')
                                 <div class="col-md-6">
                                     <label for="jenis_kendaraan" class="form-label w-100 text-start">Jenis Kendaraan<span class="text-danger">*</span></label>
-                                    <input type="text" value="{{ $datakendaraan->jenis_kendaraan }}" name="jenis_kendaraan" class="form-control" id="jenis_kendaraan" min="1" autocomplete="off">
+                                    <input type="text" value="{{ $datakendaraan->jenis_kendaraan }}" name="jenis_kendaraan" class="form-control @error('jenis_kendaraan') is-invalid @enderror" id="jenis_kendaraan" min="1" autocomplete="off">
                                     @error('jenis_kendaraan')
                                         <div class="text-danger text-start"><small>{{ $message }}</small></div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6">
                                     <label for="tahun" class="form-label w-100 text-start">Tahun Kendaraan<span class="text-danger">*</span></label>
-                                    <input type="number" value="{{ $datakendaraan->tahun }}" name="tahun" class="form-control" id="tahun">
+                                    <input type="number" value="{{ $datakendaraan->tahun }}" name="tahun" class="form-control @error('tahun') is-invalid @enderror" id="tahun">
                                     @error('tahun')
                                         <div class="text-danger text-start"><small>{{ $message }}</small></div>
                                     @enderror
                                 </div>
                                 <div class="col-12">
                                     <label for="nopol" class="form-label w-100 text-start">No Polisi<span class="text-danger">*</span></label>
-                                    <input type="text" value="{{ $datakendaraan->nopol }}" name="nopol" class="form-control" id="nopol" autocomplete="off">
+                                    <input type="text" value="{{ $datakendaraan->nopol }}" name="nopol" class="form-control @error('nopol') is-invalid @enderror" id="nopol" autocomplete="off">
                                     @error('nopol')
                                         <div class="text-danger text-start"><small>{{ $message }}</small></div>
                                     @enderror
                                 </div>
                                 <div class="col-12">
                                     <label for="warna" class="form-label w-100 text-start">Warna Kendaraan<span class="text-danger">*</span></label>
-                                    <input type="text" value="{{ $datakendaraan->warna }}" name="warna" class="form-control" id="warna" autocomplete="off">
+                                    <input type="text" value="{{ $datakendaraan->warna }}" name="warna" class="form-control @error('warna') is-invalid @enderror" id="warna" autocomplete="off">
                                     @error('warna')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
+                                </div>
+                                <div class="col-12">
+                                    <label for="Kendaraan" class="form-label w-100 text-start">Foto Kendaraan<span class="text-danger">*</span></label>
+                                    <input class="form-control @error('foto_kendaraan') is-invalid @enderror" type="file" name="foto_kendaraan" id="Kendaraan">
+                                    @error('foto_kendaraan')
+                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="id_supir" class="form-label w-100 text-start">Supir<span class="text-danger">*</span></label>
+                                    <select id="id_supir" name="id_supir" class="form-select @error('id_supir') is-invalid @enderror">
+                                        @forelse($data_supir as $supir)
+                                            @if($datakendaraan->supir == null)
+
+                                            @else
+                                                <option value="{{ $datakendaraan->supir->id }}" selected hidden>{{ $datakendaraan->supir->nama }} - (NIP:{{ $datakendaraan->supir->nip }})</option>
+                                            @endif
+                                            <option value="{{ $supir->id }}">{{ $supir->nama }} - (NIP:{{ $supir->nip }})</option>
+                                        @empty
+                                            <a>Data Supir Kosong!</a>
+                                        @endforelse       
+                                    </select>
+                                    @error('id_supir')
                                         <div class="text-danger text-start"><small>{{ $message }}</small></div>
                                     @enderror
                                 </div>
                                 <div class="col-md-4">
                                     <label for="kondisi" class="form-label w-100 text-start">Kondisi Kendaraan<span class="text-danger">*</span></label>
-                                    <select id="kondisi" name="kondisi" class="form-select">
+                                    <select id="kondisi" name="kondisi" class="form-select @error('kondisi') is-invalid @enderror">
                                         <option value="{{ $datakendaraan->kondisi }}" selected hidden>{{ $datakendaraan->kondisi }}</option>
                                         <option value="baik">Baik</option>
                                         <option value="rusak">Rusak</option>
@@ -124,19 +149,12 @@
                                 </div>
                                 <div class="col-md-4">
                                     <label for="status" class="form-label w-100 text-start">Status Kendaraan<span class="text-danger">*</span></label>
-                                    <select id="status" name="status" class="form-select">
+                                    <select id="status" name="status" class="form-select @error('status') is-invalid @enderror">
                                         <option value="{{ $datakendaraan->status }}" selected hidden>{{ $datakendaraan->status }}</option>
                                         <option value="tersedia">Tersedia</option>
                                         <option value="digunakan">Digunakan</option>
                                     </select>
                                     @error('status')
-                                        <div class="text-danger text-start"><small>{{ $message }}</small></div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="Kendaraan" class="form-label w-100 text-start">Foto Kendaraan<span class="text-danger">*</span></label>
-                                    <input class="form-control" type="file" name="foto_kendaraan" id="Kendaraan">
-                                    @error('foto_kendaraan')
                                         <div class="text-danger text-start"><small>{{ $message }}</small></div>
                                     @enderror
                                 </div>

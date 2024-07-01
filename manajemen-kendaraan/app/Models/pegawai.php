@@ -7,16 +7,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 
 class pegawai extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+
+    protected $table = 'pegawai';
+
     protected $fillable = [
         'id',
         'nip',
@@ -28,29 +30,23 @@ class pegawai extends Authenticatable
         'password',
     ];
 
-    protected $table = 'pegawai';
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public static function booted() {
+        static::creating(function ($model) {
+            $model->id = Str::uuid();
+        });
     }
 
     public function peminjaman(): HasMany
@@ -71,5 +67,10 @@ class pegawai extends Authenticatable
     public function notification(): HasMany
     {
         return $this->hasMany(notification::class, 'id_pegawai', 'id');
+    }
+
+    public function kendaraan(): BelongsTo
+    {
+        return $this->belongsTo(kendaraan::class, 'id', 'id_supir');
     }
 }

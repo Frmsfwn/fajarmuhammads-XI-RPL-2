@@ -9,7 +9,7 @@ use App\Models\pegawai;
 use App\Models\peminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Validator;
 
 class PeminjamanController extends Controller
 {
@@ -30,7 +30,7 @@ class PeminjamanController extends Controller
         $request->validate([
             'pengajuan_jumlah' => "required|numeric|min:1|max:$jumlah_kendaraan",
             'pengajuan_tanggal_awal' => 'required|date|after_or_equal:today',
-            'pengajuan_tanggal_akhir' => "required|date|after_or_equal:$request->tanggal_awal",
+            'pengajuan_tanggal_akhir' => "required|date|after_or_equal:$request->pengajuan_tanggal_awal",
             'pengajuan_supir' => 'nullable',
         ],$messages);
 
@@ -65,9 +65,18 @@ class PeminjamanController extends Controller
         $request->validate([
             'ubah_jumlah' => "required|numeric|min:1|max:$jumlah_kendaraan",
             'ubah_tanggal_awal' => 'required|date|after_or_equal:today',
-            'ubah_tanggal_akhir' => "required|date|after_or_equal:$request->tanggal_awal",
+            'ubah_tanggal_akhir' => "required|date|after_or_equal:$request->ubah_tanggal_awal",
             'ubah_supir' => 'nullable',
         ],$messages);
+
+        // $validator = Validator::make($request->all(), [
+        //     'ubah_jumlah' => "required|numeric|min:1|max:$jumlah_kendaraan",
+        //     'ubah_tanggal_awal' => 'required|date|after_or_equal:today',
+        //     'ubah_tanggal_akhir' => "required|date|after_or_equal:$request->ubah_tanggal_awal",
+        //     'ubah_supir' => 'nullable',
+        // ],$messages)->validateWithBag($id);
+ 
+        // return redirect('/homepage_pegawai')->withErrors($validator, $id);
 
         peminjaman::where('id',$id)->update([
             'jumlah' => $request->input('ubah_jumlah'),
@@ -95,55 +104,25 @@ class PeminjamanController extends Controller
     function verifikasipeminjaman(Request $request, string $id)
     {
         $peminjaman = peminjaman::findOrFail($id);
+        $data_kendaraan = $request->input('nopol');
 
-        $messages = [
-            'nopol.required' => 'Data kendaraan belum terisi',
-            'nopol.size' => 'Jumlah kendaraan tidak sesuai permintaan',
-            'id_supir.size' => 'Jumlah supir tidak sesuai',
-            'id_supir.required' => 'Data supir belum terisi',
-        ];
-
-        if($peminjaman->supir == 1)
+        foreach($data_kendaraan as $kendaraan)
         {
-            $request->validate([
-                'nopol' => "required|size:$peminjaman->jumlah",
-                'id_supir' => "required|size:$peminjaman->jumlah",
-            ], $messages);
-        }else{
-            $request->validate([
-                'nopol' => "required|size:$peminjaman->jumlah",
-                'id_supir' => "nullable|size:$peminjaman->jumlah",
-            ], $messages);    
+            $item = new detail_peminjaman();
+            $item->nopol = $kendaraan;
+            if ($request->input('supir') === 1) {
+                $item->id_supir = $kendaraan->supir->id;
+            }else{
+                $item->id_supir = $peminjaman->pegawai->id;
+            }
+            $item->id_peminjaman = $id;
+            $item->id_pegawai = Auth::id();
+            $item->save();
         }
         
-        $kendaraan = $request->input('nopol');
-        $supir = $request->input('id_supir');
-        $count = count($kendaraan);
-
-        if($supir == null)
+        foreach($data_kendaraan as $kendaraan)
         {
-            foreach($kendaraan as $data)
-            {
-                $item = new detail_peminjaman();
-                $item->nopol = $data;
-                $item->id_peminjaman = $id;
-                $item->id_pegawai = Auth::id();
-                $item->save();
-            }
-        }else {
-            for ($i = 0; $i < $count; $i++) {
-                $item = new detail_peminjaman();
-                $item->nopol = $kendaraan[$i];
-                $item->id_supir = $supir[$i];
-                $item->id_peminjaman = $id;
-                $item->id_pegawai = Auth::id();
-                $item->save();
-            }
-        }
-        
-        foreach($kendaraan as $data)
-        {
-            kendaraan::where('nopol',$data)->update([
+            kendaraan::where('nopol',$kendaraan)->update([
                 'status' => 'digunakan',
             ]);
         }
@@ -154,6 +133,7 @@ class PeminjamanController extends Controller
 
         $notifikasi = [
             'id_pegawai' => $peminjaman->pegawai->id,
+            'id_peminjaman' => $id,
             'notification' => 'Peminjaman Anda telah diterima!'
         ];
 

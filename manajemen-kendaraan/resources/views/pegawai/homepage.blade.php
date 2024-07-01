@@ -28,7 +28,7 @@
                         </div>
                         <ul class="dropdown-menu dropdown-menu-end p-2">
                             @forelse(Auth::user()->notification->slice(0, 3) as $notification)
-                                <li class="dropdown-item">
+                                <li class="dropdown-item" data-bs-toggle="modal" role="button" data-bs-target="#lightbox{{ $loop->iteration }}">
                                     <h6 class="fw-normal mb-0">{{ $notification->notification }}</h6>
                                     <small>{{ $notification->created_at }}</small>
                                 </li>
@@ -54,7 +54,7 @@
                             @endif
                         </a>
                         <div class="dropdown-menu dropdown-menu-end bg-light border-1 rounded-0 rounded-bottom m-0">
-                            <a href="/logout" class="dropdown-item">Log Out</a>
+                            <a href="/logout" class="dropdown-item"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
                         </div>
                     </div>
                 </div>
@@ -64,7 +64,7 @@
                 <div class="container-fluid p-0 mb-4 mt-4 ">
                     <div class="shadow-lg bg-light text-center rounded p-4 w-70  m-auto h-70vh ">
                         <div class="d-md-flex align-items-center justify-content-between mb-4">
-                            <h6 class="fs-3 mb-0">Peminjaman Terbaru</h6>
+                            <h6 class="fs-3 mb-0"><i class="fa-solid fa-circle-up"></i> Peminjaman Terbaru</h6>
                             <button class="btn btn-primary mt-2" data-bs-toggle="modal" data-bs-target="#formPengajuan"><i class="fa-solid fa-car me-1 car-icon" style="color: #000000;"></i>Ajukan Peminjaman</button>
                         </div>
                         {{-- Modal Pengajuan Peminjaman --}}
@@ -81,14 +81,14 @@
                                         <div class="row justify-content-between text-left mb-2">
                                             <div class="col-sm-6 flex-column d-flex">
                                                 <label for="tanggal_awal" class="form-label">Tanggal Awal<span class="text-danger">*</span></label>
-                                                <input type="date" id="tanggal_awal" name="pengajuan_tanggal_awal" min="{{ date("Y-m-d") }}" class="form-control ">
+                                                <input type="date" id="tanggal_awal" name="pengajuan_tanggal_awal" min="{{ date("Y-m-d") }}" class="form-control @error('pengajuan_tanggal_awal') is-invalid @enderror">
                                                 @error('pengajuan_tanggal_awal')
                                                 <div class="text-danger"><small>{{ $message }}</small></div>
                                                 @enderror
                                             </div>
                                             <div class="col-sm-6 flex-column d-flex">
                                                 <label for="tanggal_akhir" class="form-label">Tanggal Akhir<span class="text-danger">*</span></label>
-                                                <input type="date" id="tanggal_akhir" name="pengajuan_tanggal_akhir" min="{{ date("Y-m-d") }}" class="form-control ">
+                                                <input type="date" id="tanggal_akhir" name="pengajuan_tanggal_akhir" min="{{ date("Y-m-d") }}" class="form-control @error('pengajuan_tanggal_akhir') is-invalid @enderror">
                                                 @error('pengajuan_tanggal_akhir')
                                                 <div class="text-danger"><small>{{ $message }}</small></div>
                                                 @enderror
@@ -97,14 +97,14 @@
                                         <div class="row justify-content-between text-left mb-2">
                                             <div class="col-sm-6 flex-column d-flex ">
                                                 <label for="jumlah" class="form-label">Jumlah Kendaraan<span class="text-danger">*</span></label>
-                                                <input type="number" id="jumlah" name="pengajuan_jumlah" min="1" max="{{ $jumlah_kendaraan }}" class="form-control " placeholder="masukkan angka" >
+                                                <input type="number" id="jumlah" name="pengajuan_jumlah" min="1" max="{{ $jumlah_kendaraan }}" class="form-control @error('pengajuan_jumlah') is-invalid @enderror" placeholder="masukkan angka" >
                                                 @error('pengajuan_jumlah')
                                                 <div class="text-danger"><small>{{ $message }}</small></div>
                                                 @enderror
                                             </div>
-                                            <div class="col-sm-6 flex-column  text-center mt-4">
+                                            <div class="col-sm-6 flex-column d-flex ">
                                                 <label for="supir" class="form-label">Supir</label>
-                                                <input type="checkbox" id="supir" name="pengajuan_supir" value="1" class="">
+                                                <input type="number" id="supir" name="pengajuan_supir" min="1" max="" class="form-control @error('pengajuan_supir') is-invalid @enderror" placeholder="masukkan angka" >
                                                 @error('pengajuan_supir')
                                                 <div class="text-danger"><small>{{ $message }}</small></div>
                                                 @enderror
@@ -125,10 +125,10 @@
                                         <li class="list-group-item ">NIP : {{$datapbaru->nip_peminjam}}</li>
                                         <li class="list-group-item "> {{$datapbaru->tanggal_awal}} <br>  {{$datapbaru->tanggal_akhir}}</li>
                                         <li class="list-group-item ">Supir : 
-                                        @if ($datapbaru->supir == true)
-                                            <i class="fa-regular fa-square-check text-success" ></i>
-                                        @else
+                                        @if ($datapbaru->supir == null)
                                             -
+                                        @else
+                                            {{ $datapbaru->supir }}
                                         @endif</li>
                                         <li class="list-group-item ">Kendaraan :  <br>
                                             @if ($datapbaru->status == 'pengajuan')
@@ -161,7 +161,7 @@
                     <div class="container-fluid pt-4 px-4 h-90vh">
                         <div class="shadow-lg bg-light text-center rounded p-4 ">
                             <div class="d-flex align-items-center justify-content-between mb-4">
-                                <h6 class="fs-4 mb-0">Peminjaman</h6>
+                                <h6 class="fs-4 mb-0"><i class="fa-solid fa-clock-rotate-left"></i> Peminjaman</h6>
                             </div>
                             <div class="table-responsive">
                                 <table class="table-hover table">
@@ -179,17 +179,17 @@
                                     </thead>
                                     <tbody>
                                         @forelse ($data_peminjaman as $datapeminjam)
-                                        <tr class="align-middle">
+                                        <tr class="align-middle {{ $datapeminjam->status == 'selesai' ? 'table-secondary' : ''}}">
                                             <td>{{($data_peminjaman->currentPage()-1) * $data_peminjaman->perPage() + $loop->iteration}}</td>
                                             <td>{{$datapeminjam->nip_peminjam}}</td>
                                             <td>{{$datapeminjam->tanggal_awal}}</td>
                                             <td>{{$datapeminjam->tanggal_akhir}}</td>
                                             <td>{{$datapeminjam->jumlah}}</td>
                                             <td>
-                                                @if ($datapeminjam->supir == true)
-                                                    <i class="fa-regular fa-square-check text-success" ></i>
-                                                @else
+                                                @if ($datapeminjam->supir == null)
                                                     -
+                                                @else
+                                                    {{ $datapeminjam->supir }}
                                                 @endif
                                             </td>
                                             <td>{{$datapeminjam->status}}</td>
@@ -234,9 +234,9 @@
                                                                     <div class="text-danger"><small>{{ $message }}</small></div>
                                                                 @enderror
                                                             </div>
-                                                            <div class="col-sm-6 flex-column  text-center mt-4">
+                                                            <div class="col-sm-6 flex-column d-flex">
                                                                 <label for="supir" class="form-label">Supir</label>
-                                                                <input type="checkbox" id="supir" name="ubah_supir" value="1" class="" @checked(old('supir', $datapeminjam->supir))>
+                                                                <input type="number" id="supir" name="ubah_supir" value="{{ $datapeminjam->supir }}" min="1" max="" class="form-control @error('ubah_supir') is-invalid @enderror" placeholder="masukkan angka" >
                                                                 @error('ubah_supir')
                                                                     <div class="text-danger"><small>{{ $message }}</small></div>
                                                                 @enderror
@@ -259,6 +259,48 @@
                             {!! $data_peminjaman->links() !!}
                         </div>
                     </div>
+
+                    {{-- Notification Modal --}}
+                    @foreach($data_peminjaman->slice(0, 3) as $datapeminjam)
+                        <div class="modal fade" id="lightbox{{ $loop->iteration }}">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content">
+                                    <div class="card text-center">
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item ">NIP : {{$datapeminjam->nip_peminjam}}</li>
+                                            <li class="list-group-item "> {{$datapeminjam->tanggal_awal}} <br>  {{$datapeminjam->tanggal_akhir}}</li>
+                                            <li class="list-group-item ">Supir : 
+                                            @if ($datapeminjam->supir == null)
+                                                -
+                                            @else
+                                                {{ $datapeminjam->supir }}
+                                            @endif</li>
+                                            <li class="list-group-item ">Kendaraan :  <br>
+                                                @if ($datapeminjam->status == 'pengajuan')
+                                                    -
+                                                @elseif ($datapeminjam->status == 'diterima')
+                                                    @foreach($datapeminjam->detail_peminjaman as $detailpeminjaman)
+                                                        @foreach($detailpeminjaman->kendaraan as $kendaraan)
+                                                            {{ $kendaraan->jenis_kendaraan }} - {{ $kendaraan->nopol }}<br>
+                                                        @endforeach                                    
+                                                    @endforeach
+                                                @elseif ($datapeminjam->status == 'selesai')
+                                                    @foreach($datapeminjam->detail_peminjaman as $detailpeminjaman)
+                                                        @foreach($detailpeminjaman->kendaraan as $kendaraan)
+                                                            {{ $kendaraan->jenis_kendaraan }} - {{ $kendaraan->nopol }}<br>
+                                                        @endforeach                                    
+                                                    @endforeach
+                                                @endif
+                                            </li>
+                                            <li class="list-group-item ">Jumlah Kendaraan : {{$datapeminjam->jumlah}}</li>
+                                            <li class="list-group-item fw-bold">Status : {{$datapeminjam->status}}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+
                     {{-- Toast --}}
                     @if (session()->has('notification'))
                         <div class="position-fixed bottom-0 end-0 p-3 z-3">
