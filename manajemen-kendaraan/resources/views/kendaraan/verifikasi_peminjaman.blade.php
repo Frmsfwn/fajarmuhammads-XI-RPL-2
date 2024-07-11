@@ -96,15 +96,15 @@
                                     </thead>
                                     <tbody>
                                         <tr class="align-middle">
-                                            <td>{{ $datapeminjam->pegawai->nama }} - (NIP:{{ $datapeminjam->nip_peminjam }})</td>
-                                            <td>{{ $datapeminjam->jumlah }}</td>
-                                            <td>{{ $datapeminjam->tanggal_awal }}</td>
-                                            <td>{{ $datapeminjam->tanggal_akhir }}</td>
+                                            <td>{{ $peminjaman->pegawai->nama }} - (NIP:{{ $peminjaman->nip_peminjam }})</td>
+                                            <td>{{ $peminjaman->jumlah }}</td>
+                                            <td>{{ $peminjaman->tanggal_awal }}</td>
+                                            <td>{{ $peminjaman->tanggal_akhir }}</td>
                                             <td>
-                                                @if ($datapeminjam->supir == null)
+                                                @if ($peminjaman->supir == null)
                                                     -
                                                 @else
-                                                    {{ $datapeminjam->supir }}
+                                                    {{ $peminjaman->supir }}
                                                 @endif
                                             </td>
                                         </tr>
@@ -133,26 +133,26 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse($datakendaraan as $kendaraan)
-                                        <tr class="align-middle">
-                                            <td><input type="checkbox" class="nopol" id="nopol" name="nopol[]" value="{{ $kendaraan->nopol }}"></td>
-                                            <td>
-                                                <img class="me-lg-2" src="{{ asset($kendaraan->foto_kendaraan) }}" data-bs-toggle="modal" role="button" data-bs-target="#lightbox{{ $kendaraan->id }}" style="width: 120px;">
-                                            </td>
-                                            <td>{{ $kendaraan->jenis_kendaraan }}</td>
-                                            <td>Bang Supir</td>
-                                            <td>{{ $kendaraan->nopol }}</td>
-                                            <td>{{ $kendaraan->warna }}</td>
-                                            <td><input type="checkbox" id="supir" name="supir" value="1" @checked(true)></td>
-                                        </tr>
-                                        {{-- Lightbox Modal --}}
-                                        <div class="modal fade" id="lightbox{{ $kendaraan->id }}">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content">
-                                                    <img src="{{ asset($kendaraan->foto_kendaraan) }}" alt="Foto Kendaraan">
+                                        @forelse($data_kendaraan as $kendaraan)
+                                            <tr class="align-middle">
+                                                <td><input type="checkbox" class="nopol" id="kendaraan" name="kendaraan[]" value="{{ $kendaraan->id }}"></td>
+                                                <td>
+                                                    <img class="me-lg-2" src="{{ asset($kendaraan->foto_kendaraan) }}" data-bs-toggle="modal" role="button" data-bs-target="#lightbox{{ $kendaraan->id }}" style="width: 120px;">
+                                                </td>
+                                                <td>{{ $kendaraan->jenis_kendaraan }}</td>
+                                                <td>{{ $kendaraan->supir->nama }}</td>
+                                                <td>{{ $kendaraan->nopol }}</td>
+                                                <td>{{ $kendaraan->warna }}</td>
+                                                <td><input type="checkbox" id="supir" name="supir[{{ $kendaraan->id }}]" value="{{ $kendaraan->supir->id }}"></td>
+                                            </tr>
+                                            {{-- Lightbox Modal --}}
+                                            <div class="modal fade" id="lightbox{{ $kendaraan->id }}">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <img src="{{ asset($kendaraan->foto_kendaraan) }}" alt="Foto Kendaraan">
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
                                         @empty
                                             <h2 class="mb-5">Data Kosong</h2>
                                         @endforelse

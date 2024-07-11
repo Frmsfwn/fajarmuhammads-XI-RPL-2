@@ -27,6 +27,12 @@ class PeminjamanController extends Controller
             'pengajuan_tanggal_akhir.after_or_equal' => 'Tanggal tidak valid',            
         ];
 
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->error('Pengajuan gagal.');
+
         $request->validate([
             'pengajuan_jumlah' => "required|numeric|min:1|max:$jumlah_kendaraan",
             'pengajuan_tanggal_awal' => 'required|date|after_or_equal:today',
@@ -44,8 +50,13 @@ class PeminjamanController extends Controller
 
         peminjaman::create($data);
 
-        return redirect('/homepage_pegawai')
-                ->with('notification', 'Pengajuan Berhasil');
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->success('Pengajuan berhasil.');
+
+        return redirect('/homepage_pegawai');
     }
 
     function editpeminjaman(Request $request, string $id)
@@ -61,6 +72,12 @@ class PeminjamanController extends Controller
             'ubah_tanggal_awal.after_or_equal' => 'Tanggal tidak valid',
             'ubah_tanggal_akhir.after_or_equal' => 'Tanggal tidak valid',            
         ];
+
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->error('Peminjaman gagal diubah.');
 
         $request->validate([
             'ubah_jumlah' => "required|numeric|min:1|max:$jumlah_kendaraan",
@@ -85,67 +102,79 @@ class PeminjamanController extends Controller
             'supir' => $request->input('ubah_supir'),
         ]);
 
-        return redirect('/homepage_pegawai')
-                ->with('notification', 'Peminjaman Berhasil Diubah!');
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->success('Peminjaman berhasil diubah.');
+
+        return redirect('/homepage_pegawai');
     }
 
-    function pageverifikasipeminjaman(string $id)
+    function pageverifikasipeminjaman(peminjaman $peminjaman)
     {   
-        $datapeminjam = peminjaman::findOrFail($id);
-        $datakendaraan = kendaraan::where('status','tersedia')->where('kondisi','baik')->get();
-        $datasupir = pegawai::where('kelompok','supir')->where('status','aktif')->get();
+        $data_kendaraan = kendaraan::where('status','tersedia')->where('kondisi','baik')->get();
+        $data_supir = pegawai::where('kelompok','supir')->where('status','aktif')->get();
 
         return view('kendaraan.verifikasi_peminjaman')
-                ->with('datakendaraan',$datakendaraan)
-                ->with('datasupir',$datasupir)
-                ->with('datapeminjam',$datapeminjam);
+                ->with('data_kendaraan',$data_kendaraan)
+                ->with('data_supir',$data_supir)
+                ->with('peminjaman',$peminjaman);
     }
 
-    function verifikasipeminjaman(Request $request, string $id)
+    function verifikasipeminjaman(peminjaman $peminjaman, Request $request)
     {
-        $peminjaman = peminjaman::findOrFail($id);
-        $data_kendaraan = $request->input('nopol');
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->error('Proses verifikasi gagal.');
 
-        foreach($data_kendaraan as $kendaraan)
+       
+
+        foreach($request->input('kendaraan') as $data)
         {
             $item = new detail_peminjaman();
-            $item->nopol = $kendaraan;
-            if ($request->input('supir') === 1) {
-                $item->id_supir = $kendaraan->supir->id;
+            $item->nopol = kendaraan::find($data)->nopol;
+            if ($request->collect('supir')->has($data)) {
+                $item->id_supir = kendaraan::find($data)->supir->id;
             }else{
                 $item->id_supir = $peminjaman->pegawai->id;
             }
-            $item->id_peminjaman = $id;
+            $item->id_peminjaman = $peminjaman->id;
             $item->id_pegawai = Auth::id();
             $item->save();
         }
-        
+
+        $data_kendaraan = $request->input('kendaraan');
         foreach($data_kendaraan as $kendaraan)
         {
-            kendaraan::where('nopol',$kendaraan)->update([
+            kendaraan::where('id',$kendaraan)->update([
                 'status' => 'digunakan',
             ]);
         }
-
-        peminjaman::where('id',$id)->update([
+        $peminjaman->update([
             'status' => 'diterima',
         ]);
-
-        $notifikasi = [
+        $notification = [
             'id_pegawai' => $peminjaman->pegawai->id,
-            'id_peminjaman' => $id,
+            'id_peminjaman' => $peminjaman->id,
             'notification' => 'Peminjaman Anda telah diterima!'
         ];
+        notification::create($notification);
 
-        notification::create($notifikasi);
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->success('Proses verifikasi berhasil.');
         
-        return redirect('/data_peminjaman')
-                ->with('notification', 'Berhasil Diverifikasi.');
+        return redirect('/data_peminjaman');
     }
 
-    function selesaipeminjaman(string $id)
+    function selesaipeminjaman(peminjaman $peminjaman)
     {
-        $detail_peminjaman = detail_peminjaman::where('id_peminjaman',$id)->get();
+        $detail_peminjaman = detail_peminjaman::where('id_peminjaman',$peminjaman->id)->get();
 
         foreach($detail_peminjaman as $detailpeminjaman)
         {
@@ -159,9 +188,11 @@ class PeminjamanController extends Controller
             ]);
         }
 
-        peminjaman::where('id',$id)->update([
+        $peminjaman->update([
             'status' => 'selesai',
         ]);
+
+        notification::where('id_peminjaman',$peminjaman->id)->delete();
 
         return redirect('/data_peminjaman');
     }

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -166,6 +167,12 @@ class AdminController extends Controller
             'password.max' => 'Kolom :attribute maksimal berisi 15 karakter.',
         ];
 
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->error('Data gagal ditambah.');
+
         $request->validate([
             'nip' => 'required|numeric|digits_between:1,20|unique:pegawai,nip',
             'nama' => 'required|max:50|regex:/^[\pL\s]+$/u',
@@ -196,8 +203,13 @@ class AdminController extends Controller
             }
         }
 
-        return redirect('/pegawai')
-                ->with('notification', 'Data Berhasil Ditambah.');
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->success('Data berhasil ditambah.');
+
+        return redirect('/pegawai');
     }
 
     function editpegawai(string $id)
@@ -210,6 +222,8 @@ class AdminController extends Controller
 
     function updatepegawai(Request $request, $id)
     {
+        $pegawai = pegawai::findOrFail($id);
+
         $messages = [
             'required' => 'Kolom :attribute belum terisi.',
             'digits_between' => 'Kolom :attribute maksimal berisi angka 20 digit.',
@@ -218,21 +232,29 @@ class AdminController extends Controller
             'alpha_dash' => 'Kolom :attribute hanya boleh berisi huruf, angka, (-), (_).',
             'lowercase' => 'Kolom :attribute hanya boleh berisi huruf kecil',
             'alpha_num' => 'Kolom :attribute hanya boleh berisi huruf dan angka',
+            'nip.unique' => 'NIP telah digunakan.',
             'nama.max' => 'Kolom :attribute maksimal berisi 50 karakter.',
             'foto_profil.max' => 'Ukuran file maksimal 2MB.',
             'username.max' => 'Kolom :attribute maksimal berisi 15 karakter.',
+            'username.unique' => 'Username telah digunakan.',
             'password.max' => 'Kolom :attribute maksimal berisi 15 karakter.',
         ];
 
-        $request->validate([
-            'nip' => 'required|numeric|digits_between:1,20|',Rule::unique('pegawai','nip')->ignore($request->input('nip')),
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->error('Data gagal diubah.');
+
+        Validator::make($request->all(), [
+            'nip' => ['required', 'numeric', 'digits_between:1,20', Rule::unique('pegawai','nip')->ignore($pegawai->id)],
             'nama' => 'required|max:50|regex:/^[\pL\s]+$/u',
             'foto_profil' => 'nullable|image|max:2048',
             'status' => 'required|in:aktif,pensiun,berhenti',
             'kelompok' => 'required|in:pegawai,kendaraan,admin,supir',
-            'username' => 'required|max:15|alpha_dash:ascii|lowercase|',Rule::unique('pegawai','username')->ignore($request->input('username')),
+            'username' => ['required', 'max:15', 'alpha_dash:ascii', 'lowercase', Rule::unique('pegawai','username')->ignore($pegawai->id)],
             'password' => 'required|max:15|alpha_num:ascii',
-        ],$messages);
+        ],$messages)->validate();
 
         $data = [
             'nip' => $request->input('nip'),
@@ -242,8 +264,6 @@ class AdminController extends Controller
             'username' => $request->input('username'),
             'password' => bcrypt($request->input('password')),
         ];
-
-        $pegawai = pegawai::findOrFail($id);
 
         if ($request->hasFile('foto_profil')) {
             if (File::exists($pegawai->foto_profil)) {
@@ -259,9 +279,14 @@ class AdminController extends Controller
 
         pegawai::where('id', $id)->update($data);
         $pegawai->save();
+
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->success('Data berhasil diubah.');
         
-        return redirect('/pegawai')
-                ->with('notification', 'Data Berhasil Diubah.');
+        return redirect('/pegawai');
     }
 
     function deletepegawai(pegawai $pegawai)
@@ -272,7 +297,12 @@ class AdminController extends Controller
             File::delete(public_path($pegawai->foto_profil));
         }
 
-        return redirect('/pegawai')
-                ->with('notification', 'Data Berhasil Dihapus.');
+        flash()
+        ->killer(true)
+        ->layout('bottomRight')
+        ->timeout(3000)
+        ->success('Data berhasil dihapus.');
+
+        return redirect('/pegawai');
     }
 }
